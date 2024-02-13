@@ -41,6 +41,14 @@ class Stats:
             else:
                 dop[field] = {"main": attribute.display, "dop": 0}
                 combined_attributes[field] = attribute
+
+        if "all_dmg" in combined_attributes:
+            for field in ["physical_dmg", "fire_dmg", "ice_dmg", "lightning_dmg", "wind_dmg", "quantum_dmg", "imaginary_dmg"]:
+                if field in combined_attributes:
+                    combined_attributes[field].value += combined_attributes["all_dmg"].value
+            del combined_attributes["all_dmg"]
+            del dop["all_dmg"]
+
         return {key: value for key, value in dop.items() if value['dop'] != 0}, combined_attributes, len(dop)
 
     async def count_attributes(self,attributes):
