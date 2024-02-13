@@ -88,12 +88,14 @@ class HonkaiCard():
         
         return modal.HSRCard(**user) 
     
-    async def creat(self, uid):
+    async def creat(self, uid, data = None, character_index = None):
         task = []
         self.uid = uid 
-        self.data = await self.API.get_full_data(self.uid)
+        self.data = data or await self.API.get_full_data(self.uid)
 
-        for key in self.data.characters:
+        for i, key in enumerate(self.data.characters):
+            if character_index is not None and i != character_index:
+                continue
             
             self.name += f"{key.name}, "
             self.id += f"{key.id}, "
