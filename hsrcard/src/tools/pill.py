@@ -160,7 +160,7 @@ async def get_centr_honkai(size, file_name):
     background_image = Image.new('RGBA', size, color=(0, 0, 0, 0))
     foreground_image = file_name.convert("RGBA")
 
-    scale = 0.65
+    scale = 0.45
     foreground_image = await resize_image(foreground_image, scale)
 
     background_size = background_image.size

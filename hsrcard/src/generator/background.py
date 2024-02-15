@@ -56,6 +56,10 @@ class Background:
         :return: A tuple of two images - one with opacity and one without (PIL.Image.Image).
         """
         splash = await pill.get_dowload_img(link=self.character.portrait, cache=self.cache)
+
+        if self.character.id == "1302": # 銀枝
+            splash = splash.crop((0, 0, splash.width // 5 * 4, splash.height))
+
         splash = await pill.get_centr_honkai((684, 813), splash)
         splash_opacity = await pill.apply_opacity(splash.copy(), opacity=0.5)
         
@@ -123,7 +127,7 @@ class Background:
         if self.hide:
             return holst_background
         else:
-            holst_uid = Image.new("RGBA", (151, 21), (0, 0, 0, 0))
+            holst_uid = Image.new("RGBA", (171, 21), (0, 0, 0, 0))
             font = await pill.get_font(18)
             d = ImageDraw.Draw(holst_uid)
             d.text((4, 3), f"UID:{self.uid}", font=font, fill=(0, 0, 0, 100))
