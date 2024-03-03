@@ -49,6 +49,10 @@ class Stats:
             del combined_attributes["all_dmg"]
             del dop["all_dmg"]
 
+        # The base value of energy regeneration rate is 100%
+        if "sp_rate" in combined_attributes:
+            combined_attributes["sp_rate"].value += 1.0
+
         return {key: value for key, value in dop.items() if value['dop'] != 0}, combined_attributes, len(dop)
 
     async def count_attributes(self,attributes):
@@ -115,7 +119,7 @@ class Stats:
 
         self.draw_stats_line = ImageDraw.Draw(self.line_stat_holst)
         self.line_stat_holst.alpha_composite(icon, (0,self.position))
-        self.name_text = await pill.create_image_text(self.stat.name, 24, max_width=180, max_height=35, color=(255, 255, 255, 255))
+        self.name_text = await pill.create_image_text(self.stat.name, 24, max_width=200, max_height=35, color=(255, 255, 255, 255))
         
         if self.name_text.size[1] < 45:
             self.line_stat_holst.alpha_composite(self.name_text, (58,self.position+15))
