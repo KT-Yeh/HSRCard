@@ -52,10 +52,17 @@ tree = {
     },
 
     "Shaman":{
-        "01": (152,12),"04": (152,12),"07": (215,12),
+        "01": (89,12),"04": (152,12),"07": (215,12),
         "02": (89,85),"03": (152,85),"05": (89,159),"06": (152,159),
         "08": (89,233),"09": (152,233),"10": (215,233)
-    }
+    },
+
+    "Memory": {
+        "01": (89, 12), "02": (152, 12), "03": (215, 12),
+        "04": (89, 85), "05": (152, 85),
+        "06": (89, 159), "07": (152, 159),
+        "08": (89, 233), "09": (152, 233), "10": (215, 233),
+    },
 }
 
 position_point = {
@@ -210,7 +217,7 @@ class Skill:
         Collects and combines two images (holst_main and holst_dop) into a single image.
         :return: The combined image (PIL.Image.Image).
         """
-        holst = Image.new("RGBA", (345, 296), (0, 0, 0, 0))
+        holst = Image.new("RGBA", (350, 296), (0, 0, 0, 0))
         holst.alpha_composite(self.holst_main, (0, 0))
         holst.alpha_composite(self.holst_dop, (80, 6))
         
@@ -223,24 +230,29 @@ class Skill:
         :return: A combined image of main and additional skills (PIL.Image.Image).
         """
         self.holst_main = Image.new("RGBA", (69, 296), (0, 0, 0, 0))
-        self.holst_dop = Image.new("RGBA", (265, 293), (0, 0, 0, 0))
+        self.holst_dop = Image.new("RGBA", (300, 293), (0, 0, 0, 0))
         line = _of.line_stats.convert("RGBA")
         position_dop = tree.get(self.path)
         position_main_y = 0
-        
+        position_memo_y = 71
+
         for key in self.skill:
-            if key.max_level != 1:
+            if key.anchor in ["Point01", "Point02", "Point03", "Point04"]:  # Main skills
                 icon_skill = await self.get_main_skill_icon(key)
                 self.holst_main.alpha_composite(icon_skill, (0, position_main_y))
                 position_main_y += 76
+            elif key.anchor in ["Point19", "Point20"]:  # Memosprite skills
+                icon_skill = await self.get_main_skill_icon(key)
+                self.holst_dop.alpha_composite(icon_skill, (200, position_memo_y))
+                position_memo_y += 80
+            elif key.anchor in ["Point05", "Point06", "Point07", "Point08"]:  # Bonus ability
+                icon = await self.get_dop_skill_icon(key.icon, key.level)
+                self.holst_dop.alpha_composite(icon, position_point[key.anchor])
             else:
-                if key.anchor in ["Point05", "Point06", "Point07", "Point08"]:
-                    icon = await self.get_dop_skill_icon(key.icon, key.level)
-                    self.holst_dop.alpha_composite(icon, position_point[key.anchor])
-                else:
-                    icon = await self.creat_dop_mini_skill_icon(key.icon, key.level)
-                    self.holst_dop.alpha_composite(icon, position_dop[str(key.id)[-2:]])
-                    self.holst_dop.alpha_composite(line, (position_dop[str(key.id)[-2:]][0] - 18, position_dop[str(key.id)[-2:]][1] + 21))
-        
-        return await self.collect()
+                icon = await self.creat_dop_mini_skill_icon(key.icon, key.level)  # Stats Bonus
+                if position_dop is not None and str(key.id)[-2:] in position_dop:
+                    pos = position_dop[str(key.id)[-2:]]
+                    self.holst_dop.alpha_composite(icon, pos)
+                    self.holst_dop.alpha_composite(line, (pos[0] - 18, pos[1] + 21))
 
+        return await self.collect()
